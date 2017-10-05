@@ -27,7 +27,7 @@ def load_train_index(path):
     return images, labels
 
 
-def read_train_data(images, labels, im_width=48, im_height=48, batch_size=256, thread_num=64, capacity=1000):
+def read_train_data(images, labels, n_class=43, im_width=48, im_height=48, batch_size=256, thread_num=64, capacity=1000):
     """
     将图片数据导入管道
     :param images: 图片路径集合
@@ -43,8 +43,10 @@ def read_train_data(images, labels, im_width=48, im_height=48, batch_size=256, t
     image_file = tf.read_file(queue[0])
     image = tf.image.decode_jpeg(image_file, channels=3)
     image = tf.image.resize_image_with_crop_or_pad(image, im_height, im_width)
+    image = tf.image.per_image_standardization(image)
     label = queue[1]
     batch_image, batch_label = tf.train.batch([image, label], batch_size, thread_num, capacity)
+    batch_label = tf.one_hot(batch_label, n_class)
     return batch_image, batch_label
 
 
