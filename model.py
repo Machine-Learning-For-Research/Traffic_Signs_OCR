@@ -37,25 +37,25 @@ def inference(images):
     """
     x = images
     with tf.name_scope('conv_1'):
-        W = weight_variables([1, 1, 3, 32])
+        W = weight_variables([2, 2, 3, 32])
         b = bias_variables([32])
         x = conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
     with tf.name_scope('conv_2'):
-        W = weight_variables([1, 1, 32, 64])
+        W = weight_variables([2, 2, 32, 64])
         b = bias_variables([64])
         x = conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
     with tf.name_scope('conv_3'):
-        W = weight_variables([1, 1, 64, 128])
+        W = weight_variables([2, 2, 64, 128])
         b = bias_variables([128])
         x = conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
     with tf.name_scope('conv_4'):
-        W = weight_variables([1, 1, 128, 128])
+        W = weight_variables([2, 2, 128, 128])
         b = bias_variables([128])
         x = conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
@@ -64,7 +64,7 @@ def inference(images):
     x = tf.reshape(x, [batch_size, -1])
 
     with tf.name_scope('fc1'):
-        W = weight_variables([x.get_shape()[-1], 2048])
+        W = weight_variables([int(x.get_shape()[-1]), 2048])
         b = bias_variables([2048])
         x = fc(x, W, b)
 
@@ -76,18 +76,39 @@ def inference(images):
     with tf.name_scope('fc3'):
         W = weight_variables([2048, N_CLASS])
         b = bias_variables([N_CLASS])
+        # noinspection PyTypeChecker
         x = fc(x, W, b, activation=tf.nn.softmax)
 
     return x
 
 
-def caluate_accuracy(logits, labels):
+def calculate_loss(logits, labels):
+    # cross_entry = tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits)
+    # cross_entry = labels * tf.log(logits)
+    # loss = -tf.reduce_mean(cross_entry)
+    loss = tf.reduce_mean(tf.sqrt(tf.square(logits - labels)))
+    tf.summary.scalar('loss', loss)
+    return loss
+
+
+def get_train_step(loss, learning_rate=1e-3):
+    optimizer = tf.train.AdamOptimizer(learning_rate)
+    return optimizer.minimize(loss)
+
+
+def calculate_accuracy(logits, labels):
     """
     计算精度
     :param logits:
     :param labels:
     :return:
     """
-    correct = tf.equal(tf.argmax(logits, 1), tf.argmax(labels))
+    correct = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
     accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.summary.scalar('accuracy', accuracy)
     return accuracy
+
+
+def calculate_accuracy_width_images(images, labels):
+    logits = inference(images)
+    return calculate_accuracy(logits, labels)
