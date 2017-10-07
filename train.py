@@ -2,10 +2,10 @@ import data_reader as reader
 import tensorflow as tf
 import datetime
 import model
-import util
+import config
 import os
 
-TRAIN_PATH = util.load_train_path()
+TRAIN_PATH = config.load_train_path()
 LOG_DIR = 'log'
 MODEL_DIR = 'model_data'
 N_CLASS = 43
