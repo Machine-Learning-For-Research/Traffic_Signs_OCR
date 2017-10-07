@@ -36,6 +36,7 @@ def inference(images, training):
     :return:
     """
     x = images
+    tf.summary.image('image', images)
     with tf.name_scope('conv_1'):
         W = weight_variables([2, 2, 3, 32])
         b = bias_variables([32])

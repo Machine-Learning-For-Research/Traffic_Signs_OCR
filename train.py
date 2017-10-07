@@ -43,7 +43,7 @@ if __name__ == '__main__':
     summary_merge = tf.summary.merge_all()
     graph = tf.get_default_graph()
     train_writer = tf.summary.FileWriter(LOG_DIR, graph)
-    validate_writer = tf.summary.FileWriter(LOG_DIR, graph)
+    # validate_writer = tf.summary.FileWriter(LOG_DIR, graph)
 
     # initialize session and saver
     sess = tf.InteractiveSession()
