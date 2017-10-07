@@ -29,7 +29,7 @@ def fc(x, W, b, activation=tf.nn.relu):
     return x
 
 
-def inference(images):
+def inference(images, training):
     """
     模型推断
     :param images:
@@ -67,11 +67,13 @@ def inference(images):
         W = weight_variables([int(x.get_shape()[-1]), 2048])
         b = bias_variables([2048])
         x = fc(x, W, b)
+        x = tf.layers.batch_normalization(x, training=training)
 
     with tf.name_scope('fc2'):
         W = weight_variables([2048, 2048])
         b = bias_variables([2048])
         x = fc(x, W, b)
+        x = tf.layers.batch_normalization(x, training=training)
 
     with tf.name_scope('fc3'):
         W = weight_variables([2048, N_CLASS])
@@ -83,10 +85,8 @@ def inference(images):
 
 
 def calculate_loss(logits, labels):
-    # cross_entry = tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits)
-    # cross_entry = labels * tf.log(logits)
-    # loss = -tf.reduce_mean(cross_entry)
-    loss = tf.reduce_mean(tf.sqrt(tf.square(logits - labels)))
+    cross_entry = tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits)
+    loss = -tf.reduce_mean(cross_entry)
     tf.summary.scalar('loss', loss)
     return loss
 
@@ -109,6 +109,6 @@ def calculate_accuracy(logits, labels):
     return accuracy
 
 
-def calculate_accuracy_width_images(images, labels):
-    logits = inference(images)
+def calculate_accuracy_width_images(images, labels, training):
+    logits = inference(images, training)
     return calculate_accuracy(logits, labels)

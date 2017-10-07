@@ -32,10 +32,10 @@ if __name__ == '__main__':
     # load train and validate data
     train_size, train_image, train_label, validate_image, validate_label = load_data()
     # ready something about training
-    train_logits = model.inference(train_image)
+    train_logits = model.inference(train_image, True)
     train_loss = model.calculate_loss(train_logits, train_label)
     train_accuracy = model.calculate_accuracy(train_logits, train_label)
-    validate_accuracy = model.calculate_accuracy_width_images(validate_image, validate_label)
+    validate_accuracy = model.calculate_accuracy_width_images(validate_image, validate_label, False)
     train_step = model.get_train_step(train_loss, LEARNING_RATE)
 
     # initialize summary
@@ -67,7 +67,7 @@ if __name__ == '__main__':
             if step % 10 == 0 or step == max_iterator:
                 time = str(datetime.datetime.now())
                 epoch = int(step * BATCH_SIZE / train_size)
-                print('Time %s, Epoch %d, Step: %d, Accuracy %2.2s, Loss %.2s' % (time, epoch, step, accuracy, loss))
+                print('Time %s, Epoch %d, Step: %d, Accuracy %s, Loss %s' % (time, epoch, step, accuracy, loss))
             if step % 50 == 0 or step == max_iterator:
                 train_writer.add_summary(summary_str, step)
                 train_writer.flush()
