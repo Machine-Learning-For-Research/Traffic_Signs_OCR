@@ -27,7 +27,7 @@ def fc(x, W, b, activation=tf.nn.relu):
     if activation is not None:
         x = activation(x)
     return x
-
+#def dropout()
 
 def inference(images, training):
     """
