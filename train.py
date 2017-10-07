@@ -2,9 +2,10 @@ import data_reader as reader
 import tensorflow as tf
 import datetime
 import model
+import util
 import os
 
-TRAIN_PATH = 'E:/ML/Lin/traffic signs/Training'
+TRAIN_PATH = util.load_train_path()
 LOG_DIR = 'log'
 MODEL_DIR = 'model_data'
 N_CLASS = 43

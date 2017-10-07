@@ -79,14 +79,14 @@ def inference(images, training):
         W = weight_variables([2048, N_CLASS])
         b = bias_variables([N_CLASS])
         # noinspection PyTypeChecker
-        x = fc(x, W, b, activation=tf.nn.softmax)
+        x = fc(x, W, b, activation=None)
 
     return x
 
 
 def calculate_loss(logits, labels):
     cross_entry = tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits)
-    loss = -tf.reduce_mean(cross_entry)
+    loss = tf.reduce_mean(cross_entry)
     tf.summary.scalar('loss', loss)
     return loss
 

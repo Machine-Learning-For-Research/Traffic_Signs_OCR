@@ -1,4 +1,5 @@
 import os
+import util
 import numpy as np
 import tensorflow as tf
 
@@ -68,7 +69,7 @@ def read_data(images, labels, im_width=48, im_height=48, batch_size=256, thread_
 
 
 if __name__ == '__main__':
-    PATH = 'E:/ML/Lin/traffic signs/Training'
+    PATH = util.load_train_path()
     images, labels = load_data_index(PATH)
     print('%d images, %d labels' % (len(images), len(labels)))
 
