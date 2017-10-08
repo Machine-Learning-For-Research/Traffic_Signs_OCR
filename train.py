@@ -5,8 +5,6 @@ import model
 import config
 import os
 
-SAVER_RESTORE = saver.restore(sess, checkpoint.model_checkpoint_path)
-
 TRAIN_PATH = config.load_train_path()
 LOG_DIR = 'log'
 MODEL_DIR = 'model_data'
@@ -53,6 +51,7 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     checkpoint = tf.train.get_checkpoint_state(MODEL_DIR)
     if checkpoint and checkpoint.model_checkpoint_path:
+        saver.restore(sess, checkpoint.model_checkpoint_path)
         print('Load last model params successfully.')
 
     # initialize coord
