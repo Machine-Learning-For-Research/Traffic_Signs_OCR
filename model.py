@@ -27,7 +27,6 @@ def fc(x, W, b, activation=tf.nn.relu):
     if activation is not None:
         x = activation(x)
     return x
-#def dropout()
 
 def inference(images, training):
     """
@@ -38,25 +37,25 @@ def inference(images, training):
     x = images
     tf.summary.image('image', images)
     with tf.name_scope('conv_1'):
-        W = weight_variables([2, 2, 3, 32])
+        W = weight_variables([3, 3, 3, 32])
         b = bias_variables([32])
         x = conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
     with tf.name_scope('conv_2'):
-        W = weight_variables([2, 2, 32, 64])
+        W = weight_variables([3, 3, 32, 64])
         b = bias_variables([64])
         x = conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
     with tf.name_scope('conv_3'):
-        W = weight_variables([2, 2, 64, 128])
+        W = weight_variables([3, 3, 64, 128])
         b = bias_variables([128])
         x = conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
     with tf.name_scope('conv_4'):
-        W = weight_variables([2, 2, 128, 128])
+        W = weight_variables([3, 3, 128, 128])
         b = bias_variables([128])
         x = conv2d(x, W, b, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')

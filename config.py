@@ -12,6 +12,10 @@ def load_test_path():
     return properties.get('testPath')
 
 
+def load_csv_path():
+    return properties.get('csvPath')
+
+
 if __name__ == '__main__':
     print(load_train_path())
     print(load_test_path())

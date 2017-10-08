@@ -1,7 +1,9 @@
 import os
+import csv
 import config
 import numpy as np
 import tensorflow as tf
+import pandas as pd
 
 
 def load_data_index(path):
@@ -27,12 +29,30 @@ def load_data_index(path):
     labels = package[:, 1].astype(int)
     return images, labels
 
+def load_csv_index(csv_path):
+    if not os.path.exists(csv_path):
+        raise RuntimeError('File "%s" not found.')
+
+    images, labels = [], []
+    with open(csv_path) as f:
+        for row, line in enumerate(csv.reader(f)):
+            if row != 0:
+                strs = line[0].split(';')
+                # 这里添加相对路径
+                images.append(os.path.join(config.load_test_path(), strs[0].strip()))
+                labels.append(int(strs[-1].strip()))
+
+    package = np.vstack([images, labels]).transpose()
+    np.random.shuffle(package)
+    images = package[:, 0]
+    labels = package[:, 1].astype(int)
+    return images, labels
 
 def split_train_validate_data(images, labels, validate_rate=0.3):
     """
     分割训练集和验证集
     :param images:
-    :param labels:
+    chaju:param labels:
     :param validate_rate:
     :return:
     """
@@ -69,19 +89,24 @@ def read_data(images, labels, im_width=48, im_height=48, batch_size=256, thread_
 
 
 if __name__ == '__main__':
-    PATH = config.load_train_path()
-    images, labels = load_data_index(PATH)
-    print('%d images, %d labels' % (len(images), len(labels)))
+    Train_PATH = config.load_train_path()
+    csv_PATH = config.load_csv_path()
 
-    batch_image, batch_label = read_data(images, labels)
+    train_images, train_labels = load_data_index(Train_PATH)
+    test_images, test_labels = load_csv_index(csv_PATH)
+    print('%d images, %d labels' % (len(train_images), len(train_labels)))
+    print('%d images, %d labels' % (len(test_images), len(test_labels)))
+
+    batch_train_image, batch_train_label = read_data(train_images, train_labels)
+    batch_test_image, batch_test_label = read_data(test_images, test_labels)
     with tf.Session() as sess:
-        coord = tf.train.Coordinator()
-        threads = tf.train.start_queue_runners(sess, coord)
-        try:
-            value_image, value_label = sess.run([batch_image, batch_label])
-            print('%d images, %d labels' % (len(value_image), len(value_label)))
-        except tf.errors.OutOfRangeError as e:
-            print('Error: %s' % str(e))
-        finally:
-            coord.request_stop()
-        coord.join(threads)
+         coord = tf.train.Coordinator()
+         threads = tf.train.start_queue_runners(sess, coord)
+         try:
+             value_image, value_label = sess.run([batch_test_image, batch_test_label])
+             print('%d images, %d labels' % (len(value_image), len(value_label)))
+         except tf.errors.OutOfRangeError as e:
+             print('Error: %s' % str(e))
+         finally:
+             coord.request_stop()
+         coord.join(threads)

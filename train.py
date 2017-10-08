@@ -5,6 +5,8 @@ import model
 import config
 import os
 
+SAVER_RESTORE = saver.restore(sess, checkpoint.model_checkpoint_path)
+
 TRAIN_PATH = config.load_train_path()
 LOG_DIR = 'log'
 MODEL_DIR = 'model_data'
@@ -12,7 +14,7 @@ N_CLASS = 43
 IMAGE_WIDTH = 50
 IMAGE_HEIGHT = 50
 BATCH_SIZE = 128
-VALIDATE_RATE = 0.001
+VALIDATE_RATE = 0.01
 EPOCH = 10
 LEARNING_RATE = 1e-3
 
@@ -36,7 +38,7 @@ if __name__ == '__main__':
     train_logits = model.inference(train_image, True)
     train_loss = model.calculate_loss(train_logits, train_label)
     train_accuracy = model.calculate_accuracy(train_logits, train_label)
-    validate_accuracy = model.calculate_accuracy_width_images(validate_image, validate_label, False)
+    validate_accuracy = model.calculate_accuracy_width_images(validate_image, validate_label, True)
     train_step = model.get_train_step(train_loss, LEARNING_RATE)
 
     # initialize summary
@@ -51,7 +53,6 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     checkpoint = tf.train.get_checkpoint_state(MODEL_DIR)
     if checkpoint and checkpoint.model_checkpoint_path:
-        saver.restore(sess, checkpoint.model_checkpoint_path)
         print('Load last model params successfully.')
 
     # initialize coord
@@ -63,12 +64,12 @@ if __name__ == '__main__':
         print('Start training...')
         max_iterator = int(train_size * EPOCH / BATCH_SIZE)
         for step in range(1, max_iterator + 1):
-            _, loss, accuracy, summary_str = sess.run([train_step, train_loss, train_accuracy, summary_merge])
+            _, loss, train_acc, val_acc, summary_str = sess.run([train_step, train_loss, train_accuracy, validate_accuracy, summary_merge])
             # _, loss, accuracy, summary_str, a, b = sess.run([train_step, train_loss, train_accuracy, summary_merge, train_image, train_label])
             if step % 10 == 0 or step == max_iterator:
                 time = str(datetime.datetime.now())
                 epoch = int(step * BATCH_SIZE / train_size)
-                print('Time %s, Epoch %d, Step: %d, Accuracy %s, Loss %s' % (time, epoch, step, accuracy, loss))
+                print('Time %s, Epoch %d, Step: %d, T_Accuracy %s, V_Accuracy %s, Loss %s' % (time, epoch, step, train_acc, val_acc, loss))
             if step % 50 == 0 or step == max_iterator:
                 train_writer.add_summary(summary_str, step)
                 train_writer.flush()
