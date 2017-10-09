@@ -1,2 +1,2 @@
-# Traffic_Signs_OCR
-交通标志识别
+#Traffic Sign Recognition
+Using Convolutional Neural Network for German Traffic Sign Recognition
