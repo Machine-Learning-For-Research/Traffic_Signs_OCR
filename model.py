@@ -28,6 +28,25 @@ def fc(x, W, b, activation=tf.nn.relu):
         x = activation(x)
     return x
 
+def batch_norm(inputs, is_training=True, decay=0.999):
+    scale = tf.Variable(tf.ones([inputs.get_shape()[-1]]))
+    beta = tf.Variable(tf.zeros([inputs.get_shape()[-1]]))
+    pop_mean = tf.Variable(tf.zeros([inputs.get_shape()[-1]]), trainable=False)
+    pop_var = tf.Variable(tf.ones([inputs.get_shape()[-1]]), trainable=False)
+    epsilon = 1e-3
+    if is_training:
+        batch_mean, batch_var = tf.nn.moments(inputs, [0])
+        train_mean = tf.assign(pop_mean,
+                               pop_mean * decay + batch_mean * (1 - decay))
+        train_var = tf.assign(pop_var,
+                              pop_var * decay + batch_var * (1 - decay))
+        with tf.control_dependencies([train_mean, train_var]):
+            return tf.nn.batch_normalization(inputs,
+                                             batch_mean, batch_var, beta, scale, epsilon)
+    else:
+        return tf.nn.batch_normalization(inputs,
+                                         pop_mean, pop_var, beta, scale, epsilon)
+
 def inference(images, training):
     """
     模型推断
@@ -37,24 +56,29 @@ def inference(images, training):
     x = images
     tf.summary.image('image', images)
     with tf.name_scope('conv_1'):
-        W_conv1 = weight_variables([3, 3, 3, 32])
+        W_conv1 = weight_variables([1, 1, 3, 32])
         b_conv1 = bias_variables([32])
+        x = conv2d(x, W_conv1, b_conv1, strides=[1, 1, 1, 1], padding='SAME')
+
+    with tf.name_scope('conv_2'):
+        W_conv1 = weight_variables([3, 3, 32, 64])
+        b_conv1 = bias_variables([64])
         x = conv2d(x, W_conv1, b_conv1, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
-    with tf.name_scope('conv_2'):
-        W_conv2 = weight_variables([3, 3, 32, 64])
-        b_conv2 = bias_variables([64])
+    with tf.name_scope('conv_3'):
+        W_conv2 = weight_variables([3, 3, 64, 128])
+        b_conv2 = bias_variables([128])
         x = conv2d(x, W_conv2, b_conv2, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
-    with tf.name_scope('conv_3'):
-        W_conv3 = weight_variables([3, 3, 64, 128])
+    with tf.name_scope('conv_4'):
+        W_conv3 = weight_variables([3, 3, 128, 128])
         b_conv3 = bias_variables([128])
         x = conv2d(x, W_conv3, b_conv3, strides=[1, 1, 1, 1], padding='SAME')
         x = max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
-    with tf.name_scope('conv_4'):
+    with tf.name_scope('conv_5'):
         W_conv4 = weight_variables([3, 3, 128, 128])
         b_conv4 = bias_variables([128])
         x = conv2d(x, W_conv4, b_conv4, strides=[1, 1, 1, 1], padding='SAME')
@@ -67,13 +91,16 @@ def inference(images, training):
         W_fc1 = weight_variables([int(x.get_shape()[-1]), 2048])
         b_fc1 = bias_variables([2048])
         x = fc(x, W_fc1, b_fc1)
-        x = tf.layers.batch_normalization(x, training=training)
+        #x = tf.layers.batch_normalization(x, training=training)
+        x = batch_norm(x, is_training=True)
+
 
     with tf.name_scope('fc2'):
         W_fc2 = weight_variables([2048, 2048])
         b_fc2 = bias_variables([2048])
         x = fc(x, W_fc2, b_fc2)
-        x = tf.layers.batch_normalization(x, training=training)
+        #x = tf.layers.batch_normalization(x, training=training)
+        x = batch_norm(x, is_training=True)
 
     with tf.name_scope('fc3'):
         W_fc3 = weight_variables([2048, N_CLASS])

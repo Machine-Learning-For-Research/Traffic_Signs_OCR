@@ -36,7 +36,7 @@ if __name__ == '__main__':
     train_logits = model.inference(train_image, True)
     train_loss = model.calculate_loss(train_logits, train_label)
     train_accuracy = model.calculate_accuracy(train_logits, train_label)
-    validate_accuracy = model.calculate_accuracy_width_images(validate_image, validate_label, True)
+    #validate_accuracy = model.calculate_accuracy_width_images(validate_image, validate_label, True)
     train_step = model.get_train_step(train_loss, LEARNING_RATE)
 
     # initialize summary
@@ -63,12 +63,12 @@ if __name__ == '__main__':
         print('Start training...')
         max_iterator = int(train_size * EPOCH / BATCH_SIZE)
         for step in range(1, max_iterator + 1):
-            _, loss, train_acc, val_acc, summary_str = sess.run([train_step, train_loss, train_accuracy, validate_accuracy, summary_merge])
+            _, loss, train_acc, summary_str = sess.run([train_step, train_loss, train_accuracy, summary_merge])
             # _, loss, accuracy, summary_str, a, b = sess.run([train_step, train_loss, train_accuracy, summary_merge, train_image, train_label])
             if step % 10 == 0 or step == max_iterator:
                 time = str(datetime.datetime.now())
                 epoch = int(step * BATCH_SIZE / train_size)
-                print('Time %s, Epoch %d, Step: %d, T_Accuracy %s, V_Accuracy %s, Loss %s' % (time, epoch, step, train_acc, val_acc, loss))
+                print('Time %s, Epoch %d, Step: %d, Loss %s, T_Accuracy %s' % (time, epoch, step, loss, train_acc))
             if step % 50 == 0 or step == max_iterator:
                 train_writer.add_summary(summary_str, step)
                 train_writer.flush()

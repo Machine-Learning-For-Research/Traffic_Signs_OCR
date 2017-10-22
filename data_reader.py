@@ -80,6 +80,8 @@ def read_data(images, labels, im_width=48, im_height=48, batch_size=256, thread_
     image_file = tf.read_file(queue[0])
     image = tf.image.decode_jpeg(image_file, channels=3)
     image = tf.image.resize_image_with_crop_or_pad(image, im_height, im_width)
+    image = tf.image.random_flip_left_right(image)
+    image = tf.image.random_contrast(image, lower=0.2, upper=1.8)
     image = tf.image.per_image_standardization(image)
     label = queue[1]
     batch_image, batch_label = tf.train.batch([image, label], batch_size, thread_num, capacity)

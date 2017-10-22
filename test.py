@@ -36,7 +36,7 @@ if __name__ == '__main__':
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(sess, coord)
 
-    # start training
+    # start testing
     try:
         print('Start testing...')
         test_acc = sess.run(test_accuracy)
