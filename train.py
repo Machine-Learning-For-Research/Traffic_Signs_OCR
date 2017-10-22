@@ -68,7 +68,7 @@ if __name__ == '__main__':
             if step % 10 == 0 or step == max_iterator:
                 time = str(datetime.datetime.now())
                 epoch = int(step * BATCH_SIZE / train_size)
-                print('Time %s, Epoch %d, Step: %d, Loss %s, T_Accuracy %s' % (time, epoch, step, loss, train_acc))
+                print('Time %s, Epoch %d, Step: %d, Loss %s, Accuracy %s' % (time, epoch, step, loss, train_acc))
             if step % 50 == 0 or step == max_iterator:
                 train_writer.add_summary(summary_str, step)
                 train_writer.flush()

@@ -28,6 +28,7 @@ def fc(x, W, b, activation=tf.nn.relu):
         x = activation(x)
     return x
 
+
 def batch_norm(inputs, is_training=True, decay=0.999):
     scale = tf.Variable(tf.ones([inputs.get_shape()[-1]]))
     beta = tf.Variable(tf.zeros([inputs.get_shape()[-1]]))
@@ -46,6 +47,11 @@ def batch_norm(inputs, is_training=True, decay=0.999):
     else:
         return tf.nn.batch_normalization(inputs,
                                          pop_mean, pop_var, beta, scale, epsilon)
+
+
+def dropout(x, is_training=True):
+    return tf.nn.dropout(x, 0.5 if is_training else  1)
+
 
 def inference(images, training):
     """
@@ -91,16 +97,15 @@ def inference(images, training):
         W_fc1 = weight_variables([int(x.get_shape()[-1]), 2048])
         b_fc1 = bias_variables([2048])
         x = fc(x, W_fc1, b_fc1)
-        #x = tf.layers.batch_normalization(x, training=training)
-        x = batch_norm(x, is_training=True)
-
+        # x = tf.layers.batch_normalization(x, training=training)
+        x = dropout(x, is_training=training)
 
     with tf.name_scope('fc2'):
         W_fc2 = weight_variables([2048, 2048])
         b_fc2 = bias_variables([2048])
         x = fc(x, W_fc2, b_fc2)
-        #x = tf.layers.batch_normalization(x, training=training)
-        x = batch_norm(x, is_training=True)
+        # x = tf.layers.batch_normalization(x, training=training)
+        x = dropout(x, is_training=training)
 
     with tf.name_scope('fc3'):
         W_fc3 = weight_variables([2048, N_CLASS])
