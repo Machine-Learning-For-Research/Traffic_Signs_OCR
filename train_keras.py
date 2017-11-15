@@ -49,7 +49,7 @@ def build_generator(path_image, train=True):
 
     return image_generator.flow_from_directory(
         path_image,
-        classes=['%02d' % i for i in range(CLASSES)],
+        # classes=['%02d' % i for i in range(CLASSES)],
         target_size=(IM_WIDTH, IM_HEIGHT),
         batch_size=BATCH_SIZE,
         class_mode='categorical',
