@@ -6,7 +6,8 @@ from keras.layers import *
 import os
 
 PATH_TRAIN_IMAGES = 'C:/Users/Linstancy/Desktop/Model Code/datasets/Training'
-#PATH_VAL_IMAGES = 'validate path'
+PATH_VAL_IMAGES = 'validate path'
+PATH_TEST_IMAGES = 'test path'
 
 PATH_WEIGHTS = 'params/weights.h5'
 IM_WIDTH = 128
@@ -16,6 +17,7 @@ CLASSES = len(os.listdir(PATH_TRAIN_IMAGES))
 EPOCH = 50
 LEARNING_RATE = 1e-2
 VAL = False
+TEST = False
 
 
 def calculate_file_num(dir):
@@ -83,12 +85,6 @@ def build_model():
 
 
 if __name__ == '__main__':
-    file_num = calculate_file_num(PATH_TRAIN_IMAGES)
-    steps_per_epoch = file_num // BATCH_SIZE
-    print('Steps number is %d every epoch.' % steps_per_epoch)
-    train_generator = build_generator(PATH_TRAIN_IMAGES)
-    val_generator = build_generator(PATH_VAL_IMAGES, train=False) if VAL else None
-
     model = build_model()
     model.summary()
 
@@ -100,21 +96,40 @@ if __name__ == '__main__':
     else:
         print('Model params not found.')
 
-    if not os.path.exists(os.path.dirname(PATH_WEIGHTS)):
-        os.makedirs(os.path.dirname(PATH_WEIGHTS))
-    try:
-        model.fit_generator(
-            train_generator,
-            steps_per_epoch=steps_per_epoch,
-            callbacks=[
-                ModelCheckpoint(PATH_WEIGHTS),
-                TensorBoard()
-            ],
-            epochs=EPOCH,
-            validation_data=val_generator if VAL else None,
-            validation_steps=calculate_file_num(PATH_VAL_IMAGES) // BATCH_SIZE if VAL else None,
-        )
-    except KeyboardInterrupt:
-        print('\nStop by keyboardInterrupt, try saving weights.')
-        model.save_weights(PATH_WEIGHTS)
-        print('Save weights successfully.')
+    if TEST:
+        file_num = calculate_file_num(PATH_TEST_IMAGES)
+        steps_per_epoch = file_num // BATCH_SIZE
+        print('Steps number is %d every epoch.' % steps_per_epoch)
+        test_generator = build_generator(PATH_TEST_IMAGES, train=False)
+        loss, acc = [], []
+        for i, (x, y) in enumerate(test_generator):
+            scroes = model.evaluate(x, y, BATCH_SIZE)
+            loss += scroes[0]
+            acc += scroes[1]
+        loss = np.mean(loss).data
+        acc = np.mean(acc).data
+        print('Loss %f, Accuracy %f' % (loss, acc))
+    else:
+        file_num = calculate_file_num(PATH_TRAIN_IMAGES)
+        steps_per_epoch = file_num // BATCH_SIZE
+        print('Steps number is %d every epoch.' % steps_per_epoch)
+        train_generator = build_generator(PATH_TRAIN_IMAGES)
+        val_generator = build_generator(PATH_VAL_IMAGES, train=False) if VAL else None
+        if not os.path.exists(os.path.dirname(PATH_WEIGHTS)):
+            os.makedirs(os.path.dirname(PATH_WEIGHTS))
+        try:
+            model.fit_generator(
+                train_generator,
+                steps_per_epoch=steps_per_epoch,
+                callbacks=[
+                    ModelCheckpoint(PATH_WEIGHTS),
+                    TensorBoard()
+                ],
+                epochs=EPOCH,
+                validation_data=val_generator if VAL else None,
+                validation_steps=calculate_file_num(PATH_VAL_IMAGES) // BATCH_SIZE if VAL else None,
+            )
+        except KeyboardInterrupt:
+            print('\nStop by keyboardInterrupt, try saving weights.')
+            model.save_weights(PATH_WEIGHTS)
+            print('Save weights successfully.')
