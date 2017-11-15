@@ -5,8 +5,8 @@ from keras.models import *
 from keras.layers import *
 import os
 
-PATH_TRAIN_IMAGES = 'train path'
-PATH_VAL_IMAGES = 'validate path'
+PATH_TRAIN_IMAGES = 'C:/Users/Linstancy/Desktop/Model Code/datasets/Training'
+#PATH_VAL_IMAGES = 'validate path'
 
 PATH_WEIGHTS = 'params/weights.h5'
 IM_WIDTH = 128
@@ -15,7 +15,7 @@ BATCH_SIZE = 32
 CLASSES = len(os.listdir(PATH_TRAIN_IMAGES))
 EPOCH = 50
 LEARNING_RATE = 1e-2
-VAL = True
+VAL = False
 
 
 def calculate_file_num(dir):
