@@ -124,6 +124,7 @@ def calculate_loss(logits, labels):
 
 
 def get_train_step(loss, learning_rate=1e-3):
+    learning_rate = tf.train.exponential_decay(learning_rate, 1000, 1, 0.99, staircase=True, name=None)
     optimizer = tf.train.AdamOptimizer(learning_rate)
     return optimizer.minimize(loss)
 

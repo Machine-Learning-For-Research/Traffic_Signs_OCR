@@ -11,10 +11,10 @@ MODEL_DIR = 'model_data'
 N_CLASS = 43
 IMAGE_WIDTH = 50
 IMAGE_HEIGHT = 50
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 VALIDATE_RATE = 0.01
-EPOCH = 10
-LEARNING_RATE = 1e-3
+EPOCH = 40
+learning_rate = 1e-3
 
 
 def load_data():
@@ -37,7 +37,8 @@ if __name__ == '__main__':
     train_loss = model.calculate_loss(train_logits, train_label)
     train_accuracy = model.calculate_accuracy(train_logits, train_label)
     #validate_accuracy = model.calculate_accuracy_width_images(validate_image, validate_label, True)
-    train_step = model.get_train_step(train_loss, LEARNING_RATE)
+    learning_rate = tf.train.exponential_decay(learning_rate, 1000, 1, 0.99, staircase=True, name=None)
+    train_step = model.get_train_step(train_loss, learning_rate)
 
     # initialize summary
     summary_merge = tf.summary.merge_all()
