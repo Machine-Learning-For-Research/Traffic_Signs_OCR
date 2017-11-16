@@ -5,3 +5,5 @@ __pycache__
 /config.txt
 /config.properties
 params
+logs
+*.pyc
