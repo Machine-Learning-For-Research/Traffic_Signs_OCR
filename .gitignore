@@ -4,3 +4,4 @@ model_data
 __pycache__
 /config.txt
 /config.properties
+params
